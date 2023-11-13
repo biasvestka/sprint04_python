@@ -8,7 +8,6 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 
-
 # Configurações de conexão Oracle
 oracle_username = "RM551534"
 oracle_password = "140804"
@@ -23,12 +22,11 @@ def insert_bike_info_to_oracle(bike_info):
     try:
         connection = cx_Oracle.connect(oracle_username, oracle_password, dsn)
         cursor = connection.cursor()
-        id = bike_info["id"]
         modelo = bike_info["modelo"]
         numero_serie = bike_info["numero_serie"]
         proprietario = bike_info["proprietario"]
-        sql = "INSERT INTO BIKE_ADD (id, modelo, numero_serie, proprietario) VALUES (:id, :modelo, :numero_serie, :proprietario)"
-        cursor.execute(sql, id=id, modelo=modelo, numero_serie=numero_serie, proprietario=proprietario)
+        sql = "INSERT INTO BIKE_ADD (modelo, numero_serie, proprietario) VALUES (:modelo, :numero_serie, :proprietario)"
+        cursor.execute(sql, modelo=modelo, numero_serie=numero_serie, proprietario=proprietario)
         connection.commit()
         cursor.close()
         connection.close()
@@ -62,7 +60,6 @@ class BikeInfoApp(App):
     def build(self):
         self.layout = BoxLayout(orientation="vertical")
 
-        self.nmid_input = TextInput(hint_text="Id: ")
         self.model_input = TextInput(hint_text="Modelo da Bicicleta")
         self.serial_input = TextInput(hint_text="Número de Série")
         self.owner_input = TextInput(hint_text="Proprietário")
@@ -78,7 +75,6 @@ class BikeInfoApp(App):
         self.show_bikes_button.bind(on_press=self.show_bikes)
 
         self.layout.add_widget(Label(text="Digite as informações da bicicleta:"))
-        self.layout.add_widget(self.nmid_input)
         self.layout.add_widget(self.model_input)
         self.layout.add_widget(self.serial_input)
         self.layout.add_widget(self.owner_input)
@@ -92,7 +88,6 @@ class BikeInfoApp(App):
 
     def save_to_json_and_oracle(self, instance):
         bike_info = {
-            "id": self.nmid_input.text,
             "modelo": self.model_input.text,
             "numero_serie": self.serial_input.text,
             "proprietario": self.owner_input.text
@@ -110,7 +105,6 @@ class BikeInfoApp(App):
         with open("bikes.json", "w") as json_file:
             json.dump(data, json_file)
 
-        self.nmid_input.text = ""
         self.model_input.text = ""
         self.serial_input.text = ""
         self.owner_input.text = ""
@@ -129,15 +123,9 @@ class BikeInfoApp(App):
                 print("Nenhuma bicicleta cadastrada.")
             else:
                 for bike in bike_data:
-                    # Check if the "id" key exists in the bike dictionary before accessing it
-                    if "id" in bike:
-                        print("ID:", bike["id"])
-                    else:
-                        print("ID: (not available)")
-
-                    print("Modelo:", bike.get("modelo", "(not available)"))
-                    print("Número de Série:", bike.get("numero_serie", "(not available)"))
-                    print("Proprietário:", bike.get("proprietario", "(not available)"))
+                    print("Modelo:", bike["modelo"])
+                    print("Número de Série:", bike["numero_serie"])
+                    print("Proprietário:", bike["proprietario"])
                     print("\n")
         else:
             print("Nenhuma bicicleta cadastrada no JSON.")
@@ -164,5 +152,6 @@ class BikeInfoApp(App):
 
 if __name__ == "__main__":
     BikeInfoApp().run()
+
 
 #Tem que colar a pasta instant client da Oracle da pasta de Python!!!!
